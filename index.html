@@ -3,295 +3,345 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 MCP Server Deploy Test</title>
+    <title>สรุปแผ่นดินไหววันที่ 10 มิถุนายน 2568</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Sarabun', Arial, sans-serif;
+            margin: 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
         }
         
         .container {
+            max-width: 1200px;
+            margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px;
+            border-radius: 15px;
+            padding: 30px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 600px;
-            animation: slideInUp 0.8s ease-out;
-        }
-        
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .success-badge {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 30px;
-            display: inline-block;
-            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
         }
         
         h1 {
-            color: #333;
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
             font-size: 2.5em;
-            margin-bottom: 20px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
         
-        .emoji {
-            font-size: 4em;
-            margin-bottom: 20px;
-            animation: bounce 2s infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-15px);
-            }
-            60% {
-                transform: translateY(-8px);
-            }
-        }
-        
-        p {
-            color: #666;
-            font-size: 1.1em;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-        
-        .info-grid {
+        .summary-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
-            margin: 30px 0;
+            margin-bottom: 30px;
         }
         
-        .info-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 15px;
-            border-left: 5px solid #667eea;
-            transition: transform 0.3s ease;
-        }
-        
-        .info-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        
-        .info-card h3 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 1.2em;
-        }
-        
-        .info-card p {
-            margin: 0;
-            font-size: 0.95em;
-        }
-        
-        .deployment-info {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+        .stat-card {
+            background: linear-gradient(45deg, #3498db, #9b59b6);
             color: white;
-            padding: 25px;
-            border-radius: 15px;
-            margin: 30px 0;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         
-        .deployment-info h3 {
-            margin-bottom: 15px;
-            font-size: 1.3em;
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
         }
         
-        .deployment-info ul {
-            list-style: none;
-            text-align: left;
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
         }
         
-        .deployment-info li {
-            padding: 5px 0;
-            padding-left: 20px;
-            position: relative;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
         }
         
-        .deployment-info li:before {
-            content: "✅";
-            position: absolute;
-            left: 0;
+        th {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        td {
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 13px;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #e8f4fd;
+            transform: scale(1.01);
+            transition: all 0.3s ease;
+        }
+        
+        .magnitude {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 20px;
+            color: white;
+        }
+        
+        .mag-low { background-color: #27ae60; }
+        .mag-medium { background-color: #f39c12; }
+        .mag-high { background-color: #e74c3c; }
+        
+        .location {
+            max-width: 200px;
+            word-wrap: break-word;
+            font-size: 12px;
+        }
+        
+        .coordinates {
+            font-family: monospace;
+            font-size: 11px;
+            color: #7f8c8d;
+        }
+        
+        .thailand {
+            background-color: #fff3cd !important;
+            border-left: 4px solid #ffc107;
         }
         
         .footer {
+            text-align: center;
             margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            color: #999;
-            font-size: 0.9em;
+            color: #7f8c8d;
+            font-size: 14px;
         }
         
-        .time-display {
-            background: #343a40;
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            margin-top: 15px;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-                padding: 30px 20px;
-            }
-            
-            h1 {
-                font-size: 2em;
-            }
+        .update-time {
+            background: #ecf0f1;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="success-badge">🎉 MCP Deploy สำเร็จ!</div>
-        
-        <div class="emoji">🤖</div>
-        <h1>MCP Server ทำงานได้!</h1>
-        
-        <p>ยินดีต้อนรับสู่เว็บไซต์ที่ deploy ผ่าน MCP Server</p>
-        <p>นี่คือการทดสอบ HTML Deploy MCP ที่เราสร้างขึ้น</p>
-        
-        <div class="deployment-info">
-            <h3>📊 ข้อมูลการ Deploy</h3>
-            <ul>
-                <li>Deploy ผ่าน: MCP Server</li>
-                <li>Repository: pichayean/mcp-server</li>
-                <li>Method: GitHub API</li>
-                <li>Status: ✅ Live</li>
-            </ul>
+        <h1>🌏 สรุปแผ่นดินไหว</h1>
+        <div class="update-time">
+            📅 อัพเดต: วันที่ 10 มิถุนายน 2568 เวลา 21:39 น. (GMT+7)
         </div>
         
-        <div class="info-grid">
-            <div class="info-card">
-                <h3>🔧 MCP Tools</h3>
-                <p>ใช้ MCP tools ในการ deploy HTML ไป GitHub Pages อัตโนมัติ</p>
+        <div class="summary-stats">
+            <div class="stat-card">
+                <span class="stat-number">20</span>
+                <span class="stat-label">ครั้งทั้งหมด</span>
             </div>
-            <div class="info-card">
-                <h3>⚡ Real-time</h3>
-                <p>Deploy แบบ real-time ผ่าน Claude Desktop interface</p>
+            <div class="stat-card">
+                <span class="stat-number">1</span>
+                <span class="stat-label">ในประเทศไทย</span>
             </div>
-            <div class="info-card">
-                <h3>🌍 GitHub Pages</h3>
-                <p>เผยแพร่ผ่าน GitHub Pages พร้อม SSL certificate</p>
+            <div class="stat-card">
+                <span class="stat-number">4.9</span>
+                <span class="stat-label">ขนาดสูงสุด (แมกนิจูด)</span>
             </div>
-            <div class="info-card">
-                <h3>🚀 Automation</h3>
-                <p>ระบบ deploy อัตโนมัติที่ใช้งานง่ายผ่าน Claude</p>
+            <div class="stat-card">
+                <span class="stat-number">19</span>
+                <span class="stat-label">ประเทศเมียนมา</span>
             </div>
         </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>เวลา (ไทย)</th>
+                    <th>สถานที่</th>
+                    <th>พิกัด</th>
+                    <th>ขนาด</th>
+                    <th>ความลึก (กม.)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>10/06/68<br>14:39:52</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">18.6830, 96.4980</td>
+                    <td><span class="magnitude mag-low">2.9</span></td>
+                    <td>10.0</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>10/06/68<br>06:42:53</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">22.0180, 96.5620</td>
+                    <td><span class="magnitude mag-medium">3.6</span></td>
+                    <td>10.0</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>10/06/68<br>06:32:22</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">21.4160, 99.1240</td>
+                    <td><span class="magnitude mag-low">2.5</span></td>
+                    <td>10.0</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>10/06/68<br>05:35:34</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">20.1730, 97.9780</td>
+                    <td><span class="magnitude mag-low">2.2</span></td>
+                    <td>10.0</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>10/06/68<br>04:01:30</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">21.3400, 96.1560</td>
+                    <td><span class="magnitude mag-high">4.9</span></td>
+                    <td>10.0</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>10/06/68<br>03:49:32</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">20.7070, 96.5340</td>
+                    <td><span class="magnitude mag-low">2.3</span></td>
+                    <td>10.0</td>
+                </tr>
+                <tr class="thailand">
+                    <td>7</td>
+                    <td>10/06/68<br>02:46:06</td>
+                    <td class="location">🇹🇭 ต.เสริมขวา อ.เสริมงาม จ.ลำปาง</td>
+                    <td class="coordinates">18.1080, 99.2360</td>
+                    <td><span class="magnitude mag-low">1.4</span></td>
+                    <td>3.0</td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td>09/06/68<br>21:26:34</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">18.8650, 97.5760</td>
+                    <td><span class="magnitude mag-low">2.4</span></td>
+                    <td>10.0</td>
+                </tr>
+                <tr>
+                    <td>9</td>
+                    <td>09/06/68<br>16:04:41</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">20.3870, 96.9410</td>
+                    <td><span class="magnitude mag-medium">3.4</span></td>
+                    <td>10.0</td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>09/06/68<br>10:14:45</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">18.4140, 94.7890</td>
+                    <td><span class="magnitude mag-high">4.9</span></td>
+                    <td>10.0</td>
+                </tr>
+                <tr>
+                    <td>11</td>
+                    <td>09/06/68<br>05:29:21</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">21.3300, 98.9520</td>
+                    <td><span class="magnitude mag-medium">3.1</span></td>
+                    <td>10.0</td>
+                </tr>
+                <tr>
+                    <td>12</td>
+                    <td>09/06/68<br>03:03:21</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">21.3010, 99.0460</td>
+                    <td><span class="magnitude mag-low">2.8</span></td>
+                    <td>10.0</td>
+                </tr>
+                <tr>
+                    <td>13</td>
+                    <td>09/06/68<br>02:32:56</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">18.7830, 96.6440</td>
+                    <td><span class="magnitude mag-low">2.2</span></td>
+                    <td>10.0</td>
+                </tr>
+                <tr>
+                    <td>14</td>
+                    <td>08/06/68<br>16:07:36</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">19.6440, 96.2440</td>
+                    <td><span class="magnitude mag-low">2.8</span></td>
+                    <td>10.0</td>
+                </tr>
+                <tr>
+                    <td>15</td>
+                    <td>08/06/68<br>15:46:22</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">20.2130, 98.1050</td>
+                    <td><span class="magnitude mag-low">2.1</span></td>
+                    <td>10.0</td>
+                </tr>
+                <tr>
+                    <td>16</td>
+                    <td>08/06/68<br>13:36:34</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">20.6820, 96.8850</td>
+                    <td><span class="magnitude mag-low">2.6</span></td>
+                    <td>10.0</td>
+                </tr>
+                <tr>
+                    <td>17</td>
+                    <td>08/06/68<br>06:48:06</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">21.1810, 99.4640</td>
+                    <td><span class="magnitude mag-low">2.9</span></td>
+                    <td>10.0</td>
+                </tr>
+                <tr>
+                    <td>18</td>
+                    <td>08/06/68<br>05:25:44</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">19.6900, 96.2720</td>
+                    <td><span class="magnitude mag-low">2.2</span></td>
+                    <td>10.0</td>
+                </tr>
+                <tr>
+                    <td>19</td>
+                    <td>08/06/68<br>02:57:51</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">21.2050, 99.5300</td>
+                    <td><span class="magnitude mag-medium">3.2</span></td>
+                    <td>2.0</td>
+                </tr>
+                <tr>
+                    <td>20</td>
+                    <td>07/06/68<br>22:29:48</td>
+                    <td class="location">ประเทศเมียนมา</td>
+                    <td class="coordinates">22.2650, 96.3250</td>
+                    <td><span class="magnitude mag-medium">3.1</span></td>
+                    <td>10.0</td>
+                </tr>
+            </tbody>
+        </table>
         
         <div class="footer">
-            <p>🤖 สร้างและ deploy ด้วย HTML Deploy MCP Server</p>
-            <p>🔗 GitHub: <a href="https://github.com/pichayean/mcp-server" target="_blank">pichayean/mcp-server</a></p>
-            <div class="time-display" id="current-time"></div>
+            <p>📊 ข้อมูลจาก: ระบบตรวจวัดแผ่นดินไหว | 🔄 อัพเดตแบบเรียลไทม์</p>
+            <p>⚠️ หมายเหตุ: ข้อมูลอาจมีการปรับปรุงเพิ่มเติม | สี: 🟢 น้อย (< 3.0) 🟡 ปานกลาง (3.0-3.9) 🔴 มาก (≥ 4.0)</p>
         </div>
     </div>
-
-    <script>
-        // แสดงเวลาปัจจุบัน
-        function updateTime() {
-            const now = new Date();
-            const options = { 
-                timeZone: 'Asia/Bangkok',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            };
-            
-            document.getElementById('current-time').textContent = 
-                `⏰ ${now.toLocaleDateString('th-TH', options)}`;
-        }
-        
-        // อัพเดทเวลาทุกวินาที
-        updateTime();
-        setInterval(updateTime, 1000);
-        
-        // เอฟเฟกต์ hover สำหรับ container
-        const container = document.querySelector('.container');
-        let isHovered = false;
-        
-        container.addEventListener('mouseenter', function() {
-            isHovered = true;
-            this.style.transform = 'scale(1.02)';
-            this.style.transition = 'transform 0.3s ease';
-        });
-        
-        container.addEventListener('mouseleave', function() {
-            isHovered = false;
-            this.style.transform = 'scale(1)';
-        });
-        
-        // แสดงข้อความยินดีต้อนรับ
-        setTimeout(() => {
-            if (!isHovered) {
-                alert('🎉 ยินดีต้อนรับสู่ MCP Server Demo!\n\n✅ HTML Deploy ทำงานได้แล้ว\n🚀 MCP Server เชื่อมต่อสำเร็จ\n🌍 GitHub Pages live!');
-            }
-        }, 3000);
-        
-        // Easter egg - คลิกที่ emoji
-        document.querySelector('.emoji').addEventListener('click', function() {
-            this.style.animation = 'none';
-            setTimeout(() => {
-                this.style.animation = 'bounce 1s infinite';
-            }, 100);
-            
-            // เปลี่ยนสีพื้นหลัง
-            const colors = [
-                'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-                'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
-            ];
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            document.body.style.background = randomColor;
-        });
-    </script>
 </body>
 </html>
