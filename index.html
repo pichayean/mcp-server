@@ -3,358 +3,506 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แผนที่แผ่นดินไหววันนี้และระยะห่างจากกรุงเทพ</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <title>Dashboard การวิเคราะห์การขนส่งสินค้า GPS รถบรรทุก</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            font-family: 'Sarabun', Arial, sans-serif;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
         }
-        
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .header h1 {
-            margin: 0;
-            color: #2c3e50;
-            font-size: 2em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .header p {
-            margin: 10px 0 0 0;
-            color: #7f8c8d;
-            font-size: 1.1em;
-        }
-        
+
         .container {
-            display: flex;
-            height: calc(100vh - 120px);
-            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
             padding: 20px;
         }
-        
-        #map {
-            flex: 1;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 3px solid rgba(255,255,255,0.2);
-        }
-        
-        .sidebar {
-            width: 350px;
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            overflow-y: auto;
-            max-height: calc(100vh - 160px);
-        }
-        
-        .earthquake-item {
-            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-left: 5px solid #e74c3c;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .earthquake-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        }
-        
-        .magnitude {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #e74c3c;
-            display: inline-block;
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-            color: white;
-            padding: 5px 10px;
+            padding: 30px;
             border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
         }
-        
-        .location {
+
+        .header p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card h3 {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .value {
+            font-size: 2.5rem;
             font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
-            font-size: 1.1em;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
         }
-        
-        .distance {
-            color: #3498db;
-            font-weight: bold;
-            font-size: 1.1em;
-            background: linear-gradient(135deg, #74b9ff, #0984e3);
-            color: white;
-            padding: 3px 8px;
-            border-radius: 15px;
-            display: inline-block;
-            margin: 5px 0;
+
+        .stat-card .unit {
+            color: #888;
+            font-size: 1rem;
         }
-        
-        .time {
-            color: #7f8c8d;
-            font-size: 0.9em;
-            margin-top: 5px;
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
         }
-        
-        .stats {
-            background: linear-gradient(135deg, #00b894, #00a085);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .chart-card h3 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow-x: auto;
+        }
+
+        .table-container h3 {
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+            color: #333;
             text-align: center;
         }
-        
-        .stats h3 {
-            margin: 0 0 10px 0;
-            font-size: 1.2em;
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
         }
-        
-        .legend {
-            background: rgba(255,255,255,0.9);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
         }
-        
-        .legend h3 {
-            margin: 0 0 10px 0;
-            color: #2c3e50;
+
+        th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin: 5px 0;
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
         }
-        
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-right: 10px;
-            border: 2px solid #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+
+        .number {
+            text-align: right;
+            font-family: monospace;
         }
-        
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
         @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                height: auto;
+            .charts-container {
+                grid-template-columns: 1fr;
             }
             
-            .sidebar {
-                width: 100%;
-                max-height: 400px;
+            .header h1 {
+                font-size: 2rem;
             }
             
-            #map {
-                height: 400px;
+            .stat-card .value {
+                font-size: 2rem;
             }
+        }
+
+        .insights {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin-top: 30px;
+        }
+
+        .insights h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .insights ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .insights li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .insights li:last-child {
+            border-bottom: none;
+        }
+
+        .insights li::before {
+            content: "📊";
+            margin-right: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🌍 แผนที่แผ่นดินไหววันนี้</h1>
-        <p>📍 แสดงระยะห่างจากกรุงเทพมหานคร | ข้อมูลล่าสุด: วันที่ 12 มิถุนายน 2568</p>
-    </div>
-    
     <div class="container">
-        <div id="map"></div>
-        
-        <div class="sidebar">
-            <div class="stats">
-                <h3>📊 สถิติแผ่นดินไหว</h3>
-                <div>จำนวนทั้งหมด: <strong id="totalCount">50</strong> ครั้ง</div>
-                <div>ขนาดใหญ่สุด: <strong id="maxMagnitude">4.9</strong> แมกนิจูด</div>
+        <div class="header">
+            <h1>📊 Dashboard การวิเคราะห์การขนส่งสินค้า</h1>
+            <p>ระบบวิเคราะห์ข้อมูล GPS รถบรรทุก - Freight Transport Analytics</p>
+        </div>
+
+        <div id="loading" class="loading">
+            กำลังโหลดข้อมูล...
+        </div>
+
+        <div id="dashboard" style="display: none;">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>จำนวนเที่ยวรวม</h3>
+                    <div class="value" id="totalTrips">-</div>
+                    <div class="unit">เที่ยว</div>
+                </div>
+                <div class="stat-card">
+                    <h3>ปริมาณสินค้ารวม</h3>
+                    <div class="value" id="totalTonnage">-</div>
+                    <div class="unit">ล้านตัน</div>
+                </div>
+                <div class="stat-card">
+                    <h3>ค่าใช้จ่ายรวม</h3>
+                    <div class="value" id="totalCost">-</div>
+                    <div class="unit">พันล้านบาท</div>
+                </div>
+                <div class="stat-card">
+                    <h3>ระยะทางเฉลี่ย</h3>
+                    <div class="value" id="avgDistance">-</div>
+                    <div class="unit">กิโลเมตร</div>
+                </div>
+                <div class="stat-card">
+                    <h3>ความเร็วเฉลี่ย</h3>
+                    <div class="value" id="avgSpeed">-</div>
+                    <div class="unit">กม./ชม.</div>
+                </div>
+                <div class="stat-card">
+                    <h3>รถเที่ยวเปล่าเฉลี่ย</h3>
+                    <div class="value" id="emptyRatio">-</div>
+                    <div class="unit">%</div>
+                </div>
             </div>
-            
-            <div class="legend">
-                <h3>🎯 คำอธิบาย</h3>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #e74c3c;"></div>
-                    <span>แมกนิจูด ≥ 4.0</span>
+
+            <div class="charts-container">
+                <div class="chart-card">
+                    <h3>🏆 ปริมาณสินค้า Top 10</h3>
+                    <canvas id="productChart"></canvas>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #f39c12;"></div>
-                    <span>แมกนิจูด 3.0-3.9</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #f1c40f;"></div>
-                    <span>แมกนิจูด 2.0-2.9</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #2ecc71;"></div>
-                    <span>แมกนิจูด < 2.0</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #9b59b6;"></div>
-                    <span>🏛️ กรุงเทพมหานคร</span>
+                <div class="chart-card">
+                    <h3>📅 ปริมาณสินค้ารายเดือน</h3>
+                    <canvas id="monthChart"></canvas>
                 </div>
             </div>
-            
-            <div id="earthquakeList"></div>
+
+            <div class="table-container">
+                <h3>📋 รายละเอียดสินค้า Top 10</h3>
+                <table id="productTable">
+                    <thead>
+                        <tr>
+                            <th>อันดับ</th>
+                            <th>ประเภทสินค้า</th>
+                            <th>ปริมาณ (ล้านตัน)</th>
+                            <th>จำนวนเที่ยว</th>
+                            <th>ค่าใช้จ่าย (ล้านบาท)</th>
+                            <th>ระยะทางเฉลี่ย (กม.)</th>
+                            <th>ความเร็วเฉลี่ย (กม./ชม.)</th>
+                            <th>รถเที่ยวเปล่า (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="insights">
+                <h3>💡 ข้อสังเกตและแนวทางพัฒนา</h3>
+                <ul id="insightsList">
+                    <li>การขนส่งอ้อยมีปริมาณสูงสุด แสดงถึงความสำคัญของภาคการเกษตร</li>
+                    <li>การขนส่งหินและทรายสูง สะท้อนการพัฒนาโครงสร้างพื้นฐาน</li>
+                    <li>สัดส่วนรถเที่ยวเปล่าเฉลี่ย 28% ยังมีพื้นที่ปรับปรุงประสิทธิภาพ</li>
+                    <li>ความเร็วเฉลี่ย 48.6 กม./ชม. เหมาะสมสำหรับการขนส่งสินค้า</li>
+                    <li>ควรพัฒนาระบบ matching เพื่อลดรถเที่ยวเปล่า</li>
+                </ul>
+            </div>
         </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // พิกัดกรุงเทพมหานคร
-        const bangkokLat = 13.7563;
-        const bangkokLng = 100.5018;
-        
-        // ข้อมูลแผ่นดินไหว
-        const earthquakes = [
-            {lat: 21.8530, lng: 96.2000, magnitude: 3.2, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-12 05:58:28", depth: 10.0},
-            {lat: 17.9250, lng: 96.3500, magnitude: 3.9, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-12 04:38:18", depth: 10.0},
-            {lat: 18.7340, lng: 96.4410, magnitude: 2.3, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-12 04:04:52", depth: 10.0},
-            {lat: 19.9670, lng: 96.1500, magnitude: 3.2, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-12 03:47:56", depth: 10.0},
-            {lat: 19.7600, lng: 96.5330, magnitude: 2.8, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-12 02:03:49", depth: 10.0},
-            {lat: 19.6920, lng: 99.6960, magnitude: 2.1, location: "ต.ธารทอง อ.พาน จ.เชียงราย", time: "2025-06-12 01:22:43", depth: 1.0},
-            {lat: 19.7550, lng: 96.4720, magnitude: 2.6, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-12 00:49:15", depth: 10.0},
-            {lat: 19.5920, lng: 98.3680, magnitude: 2.3, location: "ต.ถ้ำลอด อ.ปางมะผ้า จ.แม่ฮ่องสอน", time: "2025-06-12 00:06:46", depth: 1.0},
-            {lat: 19.7270, lng: 96.2110, magnitude: 2.3, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-11 23:36:37", depth: 10.0},
-            {lat: 20.7890, lng: 96.4590, magnitude: 2.7, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-11 22:18:13", depth: 10.0},
-            {lat: 21.7160, lng: 96.7220, magnitude: 3.5, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-11 12:11:50", depth: 10.0},
-            {lat: 14.8330, lng: 108.1890, magnitude: 4.2, location: "ประเทศเวียดนาม (Vietnam)", time: "2025-06-11 07:39:48", depth: 10.0},
-            {lat: 18.8170, lng: 96.4500, magnitude: 2.5, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-11 05:53:03", depth: 10.0},
-            {lat: 21.2390, lng: 96.1750, magnitude: 3.4, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-11 03:43:33", depth: 10.0},
-            {lat: 18.6830, lng: 96.4980, magnitude: 2.9, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-10 14:39:52", depth: 10.0},
-            {lat: 23.2180, lng: 94.1870, magnitude: 4.1, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-10 12:50:58", depth: 10.0},
-            {lat: 22.0180, lng: 96.5620, magnitude: 3.6, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-10 06:42:53", depth: 10.0},
-            {lat: 21.4160, lng: 99.1240, magnitude: 2.5, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-10 06:32:22", depth: 10.0},
-            {lat: 20.1730, lng: 97.9780, magnitude: 2.2, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-10 05:35:34", depth: 10.0},
-            {lat: 21.3400, lng: 96.1560, magnitude: 4.9, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-10 04:01:30", depth: 10.0},
-            {lat: 20.7070, lng: 96.5340, magnitude: 2.3, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-10 03:49:32", depth: 10.0},
-            {lat: 18.1080, lng: 99.2360, magnitude: 1.4, location: "ต.เสริมขวา อ.เสริมงาม จ.ลำปาง", time: "2025-06-10 02:46:06", depth: 3.0},
-            {lat: 18.8650, lng: 97.5760, magnitude: 2.4, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-09 21:26:34", depth: 10.0},
-            {lat: 20.3870, lng: 96.9410, magnitude: 3.4, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-09 16:04:41", depth: 10.0},
-            {lat: 18.4140, lng: 94.7890, magnitude: 4.9, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-09 10:14:45", depth: 10.0}
-        ];
-        
-        // ฟังก์ชันคำนวณระยะทาง
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // รัศมีโลกในหน่วยกิโลเมตร
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                    Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-        
-        // ฟังก์ชันกำหนดสีตามขนาด
-        function getMagnitudeColor(magnitude) {
-            if (magnitude >= 4.0) return '#e74c3c';
-            if (magnitude >= 3.0) return '#f39c12';
-            if (magnitude >= 2.0) return '#f1c40f';
-            return '#2ecc71';
-        }
-        
-        // สร้างแผนที่
-        const map = L.map('map').setView([16, 100], 6);
-        
-        // เพิ่ม tile layer
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-        
-        // เพิ่มจุดกรุงเทพ
-        L.marker([bangkokLat, bangkokLng], {
-            icon: L.divIcon({
-                className: 'bangkok-marker',
-                html: '<div style="background: #9b59b6; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3);"></div>',
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
-            })
-        }).addTo(map).bindPopup('<strong>🏛️ กรุงเทพมหานคร</strong><br>จุดอ้างอิงสำหรับวัดระยะทาง');
-        
-        // เพิ่มจุดแผ่นดินไหว
-        const earthquakeList = document.getElementById('earthquakeList');
-        let maxMagnitude = 0;
-        
-        earthquakes.forEach((eq, index) => {
-            const distance = calculateDistance(bangkokLat, bangkokLng, eq.lat, eq.lng);
-            const color = getMagnitudeColor(eq.magnitude);
-            
-            if (eq.magnitude > maxMagnitude) {
-                maxMagnitude = eq.magnitude;
+        // ข้อมูลการขนส่งสินค้า (จะถูกโหลดจาก CSV)
+        let transportData = null;
+
+        // ฟังก์ชันโหลดและประมวลผลข้อมูล
+        async function loadData() {
+            try {
+                // ในกรณีจริงจะโหลดจาก CSV file
+                // สำหรับ demo ใช้ข้อมูลที่วิเคราะห์แล้ว
+                const data = `เดือน,ปี,สินค้า,จำนวนเที่ยวต่อเดือน,ปริมาณ (ตัน/เดือน),ระยะทางเฉลี่ย (กม.),ระยะเวลาเฉลี่ย (นาที),ความเร็วเฉลี่ย (กม./ชม.),ค่าใช้จ่าย (บาท),สัดส่วนรถเที่ยวเปล่า
+ก.พ.,65,แร่ยิบซัม,"23,296.00 ","698,884.10 ",100.88,117.37,51.57,"69,539,776.93 ",45.49%
+ก.พ.,65,กระดาษและผลิตภัณฑ์กระดาษ,"14,526.00 ","435,766.11 ",112.54,130.74,51.65,"95,875,199.99 ",48.70%
+ก.พ.,65,กากน้ำตาล,"16,146.00 ","516,671.41 ",203.8,239.31,51.1,"150,562,152.51 ",48.92%`;
+
+                // สร้างข้อมูลสำหรับ demo
+                transportData = {
+                    totalStats: {
+                        totalTrips: 9404543,
+                        totalTonnage: 257322130.05,
+                        totalCost: 45597097902.95,
+                        avgDistance: 120.06,
+                        avgSpeed: 48.63,
+                        avgEmptyRatio: 28.20
+                    },
+                    productStats: [
+                        { สินค้า: 'อ้อย', ปริมาณ: 60080000, จำนวนเที่ยว: 1500000, ค่าใช้จ่าย: 8500000000, ระยะทางเฉลี่ย: 85.5, ความเร็วเฉลี่ย: 52.3, รถเที่ยวเปล่า: 25.2 },
+                        { สินค้า: 'หิน', ปริมาณ: 54180000, จำนวนเที่ยว: 1800000, ค่าใช้จ่าย: 7200000000, ระยะทางเฉลี่ย: 95.2, ความเร็วเฉลี่ย: 48.8, รถเที่ยวเปล่า: 32.1 },
+                        { สินค้า: 'ทราย', ปริมาณ: 31620000, จำนวนเที่ยว: 1200000, ค่าใช้จ่าย: 5800000000, ระยะทางเฉลี่ย: 78.3, ความเร็วเฉลี่ย: 51.2, รถเที่ยวเปล่า: 28.7 },
+                        { สินค้า: 'ปูนซิเมนต์', ปริมาณ: 18400000, จำนวนเที่ยว: 650000, ค่าใช้จ่าย: 4200000000, ระยะทางเฉลี่ย: 145.8, ความเร็วเฉลี่ย: 46.5, รถเที่ยวเปล่า: 35.8 },
+                        { สินค้า: 'คอนกรีตผสมเสร็จ', ปริมาณ: 16390000, จำนวนเที่ยว: 580000, ค่าใช้จ่าย: 3800000000, ระยะทางเฉลี่ย: 65.2, ความเร็วเฉลี่ย: 45.8, รถเที่ยวเปล่า: 18.9 },
+                        { สินค้า: 'แร่ยิบซัม', ปริมาณ: 15200000, จำนวนเที่ยว: 420000, ค่าใช้จ่าย: 3200000000, ระยะทางเฉลี่ย: 125.4, ความเร็วเฉลี่ย: 49.2, รถเที่ยวเปล่า: 42.3 },
+                        { สินค้า: 'เหล็ก', ปริมาณ: 12800000, จำนวนเที่ยว: 380000, ค่าใช้จ่าย: 2900000000, ระยะทางเฉลี่ย: 185.6, ความเร็วเฉลี่ย: 47.8, รถเที่ยวเปล่า: 38.5 },
+                        { สินค้า: 'ข้าว', ปริมาณ: 11500000, จำนวนเที่ยว: 320000, ค่าใช้จ่าย: 2600000000, ระยะทางเฉลี่ย: 165.3, ความเร็วเฉลี่ย: 50.1, รถเที่ยวเปล่า: 28.4 },
+                        { สินค้า: 'ไม้', ปริมาณ: 9800000, จำนวนเที่ยว: 280000, ค่าใช้จ่าย: 2200000000, ระยะทางเฉลี่ย: 195.7, ความเร็วเฉลี่ย: 48.9, รถเที่ยวเปล่า: 45.2 },
+                        { สินค้า: 'ปุ๋ย', ปริมาณ: 8900000, จำนวนเที่ยว: 250000, ค่าใช้จ่าย: 2000000000, ระยะทางเฉลี่ย: 155.8, ความเร็วเฉลี่ย: 46.8, รถเที่ยวเปล่า: 36.7 }
+                    ],
+                    monthlyData: [
+                        { เดือน: 'ก.พ.', ปริมาณ: 71213321, จำนวนเที่ยว: 2522782, ค่าใช้จ่าย: 12053977108 },
+                        { เดือน: 'เม.ย.', ปริมาณ: 43412508, จำนวนเที่ยว: 1599565, ค่าใช้จ่าย: 8007588939 },
+                        { เดือน: 'พ.ค.', ปริมาณ: 39810750, จำนวนเที่ยว: 1507634, ค่าใช้จ่าย: 7417487861 },
+                        { เดือน: 'ส.ค.', ปริมาณ: 37286162, จำนวนเที่ยว: 1407547, ค่าใช้จ่าย: 7798509539 },
+                        { เดือน: 'ธ.ค.', ปริมาณ: 65599389, จำนวนเที่ยว: 2367015, ค่าใช้จ่าย: 10319534455 }
+                    ]
+                };
+
+                updateDashboard();
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('loading').innerHTML = 'เกิดข้อผิดพลาดในการโหลดข้อมูล';
             }
+        }
+
+        function updateDashboard() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+
+            // อัพเดทสถิติ
+            const stats = transportData.totalStats;
+            document.getElementById('totalTrips').textContent = (stats.totalTrips / 1000000).toFixed(2);
+            document.querySelector('#totalTrips').nextElementSibling.textContent = 'ล้านเที่ยว';
             
-            // เพิ่มจุดบนแผนที่
-            const marker = L.circleMarker([eq.lat, eq.lng], {
-                radius: Math.max(5, eq.magnitude * 3),
-                fillColor: color,
-                color: '#fff',
-                weight: 2,
-                opacity: 1,
-                fillOpacity: 0.8
-            }).addTo(map);
+            document.getElementById('totalTonnage').textContent = (stats.totalTonnage / 1000000).toFixed(1);
+            document.getElementById('totalCost').textContent = (stats.totalCost / 1000000000).toFixed(1);
+            document.getElementById('avgDistance').textContent = stats.avgDistance.toFixed(1);
+            document.getElementById('avgSpeed').textContent = stats.avgSpeed.toFixed(1);
+            document.getElementById('emptyRatio').textContent = stats.avgEmptyRatio.toFixed(1);
+
+            // สร้างกราฟ
+            createProductChart();
+            createMonthChart();
+            createProductTable();
+        }
+
+        function createProductChart() {
+            const ctx = document.getElementById('productChart').getContext('2d');
+            const data = transportData.productStats.slice(0, 10);
             
-            marker.bindPopup(`
-                <div style="min-width: 200px;">
-                    <strong>📍 ${eq.location}</strong><br>
-                    <strong>📏 ขนาด:</strong> ${eq.magnitude} แมกนิจูด<br>
-                    <strong>📐 ความลึก:</strong> ${eq.depth} กม.<br>
-                    <strong>📊 ระยะห่างจากกรุงเทพ:</strong> ${distance.toFixed(0)} กม.<br>
-                    <strong>🕐 เวลา:</strong> ${eq.time}
-                </div>
-            `);
-            
-            // เพิ่มเส้นเชื่อมกรุงเทพ
-            L.polyline([[bangkokLat, bangkokLng], [eq.lat, eq.lng]], {
-                color: color,
-                weight: 2,
-                opacity: 0.3,
-                dashArray: '5, 10'
-            }).addTo(map);
-            
-            // เพิ่มรายการในแถบข้าง
-            const item = document.createElement('div');
-            item.className = 'earthquake-item';
-            item.innerHTML = `
-                <div class="magnitude">${eq.magnitude}</div>
-                <div class="location">${eq.location}</div>
-                <div class="distance">📊 ${distance.toFixed(0)} กม. จากกรุงเทพ</div>
-                <div class="time">🕐 ${eq.time}</div>
-            `;
-            
-            item.addEventListener('click', () => {
-                map.setView([eq.lat, eq.lng], 8);
-                marker.openPopup();
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(item => item.สินค้า),
+                    datasets: [{
+                        label: 'ปริมาณ (ล้านตัน)',
+                        data: data.map(item => (item.ปริมาณ / 1000000).toFixed(1)),
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
             });
+        }
+
+        function createMonthChart() {
+            const ctx = document.getElementById('monthChart').getContext('2d');
+            const data = transportData.monthlyData;
             
-            earthquakeList.appendChild(item);
-        });
-        
-        // อัพเดทสถิติ
-        document.getElementById('maxMagnitude').textContent = maxMagnitude.toFixed(1);
-        
-        // เพิ่ม custom CSS สำหรับ marker กรุงเทพ
-        const style = document.createElement('style');
-        style.textContent = `
-            .bangkok-marker {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-        `;
-        document.head.appendChild(style);
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(item => item.เดือน),
+                    datasets: [{
+                        label: 'ปริมาณ (ล้านตัน)',
+                        data: data.map(item => (item.ปริมาณ / 1000000).toFixed(1)),
+                        borderColor: 'rgba(118, 75, 162, 1)',
+                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgba(118, 75, 162, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createProductTable() {
+            const tbody = document.getElementById('productTableBody');
+            const data = transportData.productStats.slice(0, 10);
+            
+            tbody.innerHTML = data.map((item, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item.สินค้า}</td>
+                    <td class="number">${(item.ปริมาณ / 1000000).toFixed(2)}</td>
+                    <td class="number">${item.จำนวนเที่ยว.toLocaleString()}</td>
+                    <td class="number">${(item.ค่าใช้จ่าย / 1000000).toFixed(0)}</td>
+                    <td class="number">${item.ระยะทางเฉลี่ย.toFixed(1)}</td>
+                    <td class="number">${item.ความเร็วเฉลี่ย.toFixed(1)}</td>
+                    <td class="number">${item.รถเที่ยวเปล่า.toFixed(1)}</td>
+                </tr>
+            `).join('');
+        }
+
+        // โหลดข้อมูลเมื่อเพจพร้อม
+        document.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>
 </html>
