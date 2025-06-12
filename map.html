@@ -3,185 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แผนที่แผ่นดินไหวล่าสุด - ระยะห่างจากกรุงเทพ</title>
+    <title>แผนที่แผ่นดินไหววันนี้ - ระยะห่างจากกรุงเทพ</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body {
-            font-family: 'Sarabun', Arial, sans-serif;
             margin: 0;
             padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         
         .header {
-            background: rgba(255,255,255,0.95);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             padding: 20px;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
         
         .header h1 {
-            color: #2c3e50;
             margin: 0;
+            color: #2c3e50;
             font-size: 28px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            font-weight: 700;
         }
         
         .header p {
+            margin: 5px 0 0 0;
             color: #7f8c8d;
-            margin: 10px 0 0 0;
             font-size: 16px;
         }
         
+        .map-container {
+            position: relative;
+            height: calc(100vh - 120px);
+            margin: 0;
+        }
+        
         #map {
-            height: 600px;
-            margin: 20px;
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            border: 3px solid rgba(255,255,255,0.3);
+            height: 100%;
+            width: 100%;
+            border-radius: 0;
         }
         
-        .info-panel {
-            background: rgba(255,255,255,0.95);
-            margin: 20px;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        
-        .earthquake-item {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            margin: 10px 0;
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             padding: 15px;
             border-radius: 10px;
-            border-left: 5px solid;
-            transition: transform 0.2s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            min-width: 200px;
         }
         
-        .earthquake-item:hover {
-            transform: translateX(5px);
+        .legend h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 16px;
         }
         
-        .magnitude-high { border-left-color: #e74c3c; }
-        .magnitude-medium { border-left-color: #f39c12; }
-        .magnitude-low { border-left-color: #27ae60; }
-        
-        .distance-info {
-            font-weight: bold;
-            color: #2980b9;
-        }
-        
-        .magnitude-info {
-            font-weight: bold;
-            font-size: 18px;
-        }
-        
-        .time-info {
-            color: #7f8c8d;
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
             font-size: 14px;
         }
         
-        .location-info {
-            color: #34495e;
-            font-weight: 500;
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         
         .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            padding: 20px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px;
             border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(52,152,219,0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            min-width: 250px;
         }
         
-        .stat-number {
-            font-size: 24px;
-            font-weight: bold;
-            display: block;
+        .stats h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 16px;
         }
         
-        .stat-label {
+        .stat-item {
+            margin: 5px 0;
             font-size: 14px;
-            opacity: 0.9;
+            color: #34495e;
+        }
+        
+        .popup-content {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 300px;
+        }
+        
+        .popup-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .popup-info {
+            margin: 4px 0;
+            font-size: 14px;
+            color: #34495e;
+        }
+        
+        .popup-distance {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            margin-top: 8px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>🌍 แผนที่แผ่นดินไหวล่าสุด</h1>
-        <p>แสดงจุดเกิดแผ่นดินไหวและระยะห่างจากกรุงเทพมหานคร | อัปเดต: <span id="updateTime"></span></p>
+        <h1>🌍 แผนที่แผ่นดินไหววันนี้</h1>
+        <p>ระยะห่างจากกรุงเทพมหานคร | อัพเดตล่าสุด: 12 มิถุนายน 2025</p>
     </div>
     
-    <div id="map"></div>
-    
-    <div class="info-panel">
-        <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">📊 สถิติและรายละเอียด</h2>
+    <div class="map-container">
+        <div id="map"></div>
         
         <div class="stats">
-            <div class="stat-card">
-                <span class="stat-number" id="totalEarthquakes">20</span>
-                <span class="stat-label">จำนวนแผ่นดินไหวทั้งหมด</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-number" id="avgDistance">-</span>
-                <span class="stat-label">ระยะห่างเฉลี่ยจากกรุงเทพ (กม.)</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-number" id="maxMagnitude">-</span>
-                <span class="stat-label">ขนาดสูงสุด (แมกนิจูด)</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-number" id="nearestDistance">-</span>
-                <span class="stat-label">ระยะใกล้ที่สุด (กม.)</span>
-            </div>
+            <h3>📊 สถิติแผ่นดินไหว</h3>
+            <div class="stat-item">🏠 <strong>กรุงเทพฯ:</strong> จุดอ้างอิง</div>
+            <div class="stat-item">🌏 <strong>ทั้งหมด:</strong> <span id="total-earthquakes">20</span> ครั้ง</div>
+            <div class="stat-item">🇹🇭 <strong>ในไทย:</strong> <span id="thailand-earthquakes">2</span> ครั้ง</div>
+            <div class="stat-item">📏 <strong>ใกล้ที่สุด:</strong> <span id="closest-distance">-</span></div>
+            <div class="stat-item">📏 <strong>ไกลที่สุด:</strong> <span id="farthest-distance">-</span></div>
         </div>
         
-        <div id="earthquakeList" style="margin-top: 30px;">
-            <h3 style="color: #2c3e50;">🗂️ รายการแผ่นดินไหวล่าสุด</h3>
+        <div class="legend">
+            <h3>🗺️ คำอธิบาย</h3>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #ff6b6b, #ee5a52);"></div>
+                <span>แมกฯ > 4.0</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #feca57, #ff9ff3);"></div>
+                <span>แมกฯ 3.0-4.0</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #48dbfb, #0abde3);"></div>
+                <span>แมกฯ 2.0-3.0</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #1dd1a1, #10ac84);"></div>
+                <span>แมกฯ < 2.0</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #ffd700, #ffb347); border: 3px solid #fff;"></div>
+                <span>กรุงเทพฯ</span>
+            </div>
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // พิกัดกรุงเทพมหานคร
-        const bangkokLat = 13.7563;
-        const bangkokLng = 100.5018;
+        const bangkok = [13.7563, 100.5018];
         
         // ข้อมูลแผ่นดินไหว
         const earthquakes = [
-            {lat: 21.8530, lng: 96.2000, magnitude: 3.2, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-12 05:58:28", depth: 10.0},
-            {lat: 17.9250, lng: 96.3500, magnitude: 3.9, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-12 04:38:18", depth: 10.0},
-            {lat: 18.7340, lng: 96.4410, magnitude: 2.3, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-12 04:04:52", depth: 10.0},
-            {lat: 19.9670, lng: 96.1500, magnitude: 3.2, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-12 03:47:56", depth: 10.0},
-            {lat: 19.7600, lng: 96.5330, magnitude: 2.8, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-12 02:03:49", depth: 10.0},
-            {lat: 19.6920, lng: 99.6960, magnitude: 2.1, location: "ต.ธารทอง อ.พาน จ.เชียงราย", time: "2025-06-12 01:22:43", depth: 1.0},
-            {lat: 19.7550, lng: 96.4720, magnitude: 2.6, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-12 00:49:15", depth: 10.0},
-            {lat: 19.5920, lng: 98.3680, magnitude: 2.3, location: "ต.ถ้ำลอด อ.ปางมะผ้า จ.แม่ฮ่องสอน", time: "2025-06-12 00:06:46", depth: 1.0},
-            {lat: 19.7270, lng: 96.2110, magnitude: 2.3, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-11 23:36:37", depth: 10.0},
-            {lat: 20.7890, lng: 96.4590, magnitude: 2.7, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-11 22:18:13", depth: 10.0},
-            {lat: 21.7160, lng: 96.7220, magnitude: 3.5, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-11 12:11:50", depth: 10.0},
-            {lat: 14.8330, lng: 108.1890, magnitude: 4.2, location: "ประเทศเวียดนาม (Vietnam)", time: "2025-06-11 07:39:48", depth: 10.0},
-            {lat: 18.8170, lng: 96.4500, magnitude: 2.5, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-11 05:53:03", depth: 10.0},
-            {lat: 21.2390, lng: 96.1750, magnitude: 3.4, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-11 03:43:33", depth: 10.0},
-            {lat: 18.6830, lng: 96.4980, magnitude: 2.9, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-10 14:39:52", depth: 10.0},
-            {lat: 23.2180, lng: 94.1870, magnitude: 4.1, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-10 12:50:58", depth: 10.0},
-            {lat: 22.0180, lng: 96.5620, magnitude: 3.6, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-10 06:42:53", depth: 10.0},
-            {lat: 21.4160, lng: 99.1240, magnitude: 2.5, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-10 06:32:22", depth: 10.0},
-            {lat: 20.1730, lng: 97.9780, magnitude: 2.2, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-10 05:35:34", depth: 10.0},
-            {lat: 21.3400, lng: 96.1560, magnitude: 4.9, location: "ประเทศเมียนมา (Myanmar)", time: "2025-06-10 04:01:30", depth: 10.0}
+            {lat: 21.8530, lng: 96.2000, magnitude: 3.2, location: "เมียนมา (Myanmar)", time: "2025-06-12 05:58:28", depth: 10.0},
+            {lat: 17.9250, lng: 96.3500, magnitude: 3.9, location: "เมียนมา (Myanmar)", time: "2025-06-12 04:38:18", depth: 10.0},
+            {lat: 18.7340, lng: 96.4410, magnitude: 2.3, location: "เมียนมา (Myanmar)", time: "2025-06-12 04:04:52", depth: 10.0},
+            {lat: 19.9670, lng: 96.1500, magnitude: 3.2, location: "เมียนมา (Myanmar)", time: "2025-06-12 03:47:56", depth: 10.0},
+            {lat: 19.7600, lng: 96.5330, magnitude: 2.8, location: "เมียนมา (Myanmar)", time: "2025-06-12 02:03:49", depth: 10.0},
+            {lat: 19.6920, lng: 99.6960, magnitude: 2.1, location: "เชียงราย ประเทศไทย", time: "2025-06-12 01:22:43", depth: 1.0},
+            {lat: 19.7550, lng: 96.4720, magnitude: 2.6, location: "เมียนมา (Myanmar)", time: "2025-06-12 00:49:15", depth: 10.0},
+            {lat: 19.5920, lng: 98.3680, magnitude: 2.3, location: "แม่ฮ่องสอน ประเทศไทย", time: "2025-06-12 00:06:46", depth: 1.0},
+            {lat: 19.7270, lng: 96.2110, magnitude: 2.3, location: "เมียนมา (Myanmar)", time: "2025-06-11 23:36:37", depth: 10.0},
+            {lat: 20.7890, lng: 96.4590, magnitude: 2.7, location: "เมียนมา (Myanmar)", time: "2025-06-11 22:18:13", depth: 10.0},
+            {lat: 21.7160, lng: 96.7220, magnitude: 3.5, location: "เมียนมา (Myanmar)", time: "2025-06-11 12:11:50", depth: 10.0},
+            {lat: 14.8330, lng: 108.1890, magnitude: 4.2, location: "เวียดนาม (Vietnam)", time: "2025-06-11 07:39:48", depth: 10.0},
+            {lat: 18.8170, lng: 96.4500, magnitude: 2.5, location: "เมียนมา (Myanmar)", time: "2025-06-11 05:53:03", depth: 10.0},
+            {lat: 21.2390, lng: 96.1750, magnitude: 3.4, location: "เมียนมา (Myanmar)", time: "2025-06-11 03:43:33", depth: 10.0},
+            {lat: 18.6830, lng: 96.4980, magnitude: 2.9, location: "เมียนมา (Myanmar)", time: "2025-06-10 14:39:52", depth: 10.0},
+            {lat: 23.2180, lng: 94.1870, magnitude: 4.1, location: "เมียนมา (Myanmar)", time: "2025-06-10 12:50:58", depth: 10.0},
+            {lat: 22.0180, lng: 96.5620, magnitude: 3.6, location: "เมียนมา (Myanmar)", time: "2025-06-10 06:42:53", depth: 10.0},
+            {lat: 21.4160, lng: 99.1240, magnitude: 2.5, location: "เมียนมา (Myanmar)", time: "2025-06-10 06:32:22", depth: 10.0},
+            {lat: 20.1730, lng: 97.9780, magnitude: 2.2, location: "เมียนมา (Myanmar)", time: "2025-06-10 05:35:34", depth: 10.0},
+            {lat: 21.3400, lng: 96.1560, magnitude: 4.9, location: "เมียนมา (Myanmar)", time: "2025-06-10 04:01:30", depth: 10.0}
         ];
         
-        // คำนวณระยะห่างระหว่างสองจุด (Haversine formula)
+        // ฟังก์ชันคำนวณระยะทาง (Haversine formula)
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // รัศมีโลก (กิโลเมตร)
+            const R = 6371; // รัศมีโลกในหน่วยกิโลเมตร
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
@@ -191,124 +218,143 @@
             return R * c;
         }
         
-        // คำนวณระยะห่างสำหรับแต่ละแผ่นดินไหว
-        earthquakes.forEach(eq => {
-            eq.distance = calculateDistance(bangkokLat, bangkokLng, eq.lat, eq.lng);
-        });
+        // ฟังก์ชันเลือกสีตามขนาดแผ่นดินไหว
+        function getEarthquakeColor(magnitude) {
+            if (magnitude >= 4.0) return 'linear-gradient(135deg, #ff6b6b, #ee5a52)';
+            if (magnitude >= 3.0) return 'linear-gradient(135deg, #feca57, #ff9ff3)';
+            if (magnitude >= 2.0) return 'linear-gradient(135deg, #48dbfb, #0abde3)';
+            return 'linear-gradient(135deg, #1dd1a1, #10ac84)';
+        }
+        
+        // ฟังก์ชันเลือกขนาด marker ตามขนาดแผ่นดินไหว
+        function getMarkerSize(magnitude) {
+            return Math.max(8, magnitude * 3);
+        }
         
         // สร้างแผนที่
-        const map = L.map('map').setView([16, 100], 6);
+        const map = L.map('map').setView([16.0, 100.0], 6);
         
         // เพิ่ม tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
         
-        // เพิ่มจุดกรุงเทพ
+        // เพิ่มจุดกรุงเทพฯ
         const bangkokIcon = L.divIcon({
-            html: '<div style="background: #e74c3c; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">🏛️</div>',
-            iconSize: [30, 30],
-            className: 'bangkok-marker'
+            className: 'bangkok-marker',
+            html: `<div style="
+                width: 25px; 
+                height: 25px; 
+                background: linear-gradient(135deg, #ffd700, #ffb347);
+                border: 3px solid #fff;
+                border-radius: 50%;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+            ">🏛️</div>`,
+            iconSize: [25, 25],
+            iconAnchor: [12.5, 12.5]
         });
         
-        L.marker([bangkokLat, bangkokLng], {icon: bangkokIcon})
+        L.marker(bangkok, {icon: bangkokIcon})
             .addTo(map)
-            .bindPopup('<div style="text-align: center;"><h3>🏛️ กรุงเทพมหานคร</h3><p>จุดอ้างอิงสำหรับการคำนวณระยะห่าง</p></div>');
+            .bindPopup(`
+                <div class="popup-content">
+                    <div class="popup-title">🏛️ กรุงเทพมหานคร</div>
+                    <div class="popup-info">📍 พิกัด: ${bangkok[0].toFixed(4)}, ${bangkok[1].toFixed(4)}</div>
+                    <div class="popup-info">🇹🇭 ประเทศไทย</div>
+                    <div class="popup-distance">จุดอ้างอิงสำหรับการคำนวณระยะทาง</div>
+                </div>
+            `);
         
-        // เพิ่มจุดแผ่นดินไหว
+        // คำนวณระยะทางและเพิ่มจุดแผ่นดินไหว
+        let closestDistance = Infinity;
+        let farthestDistance = 0;
+        let thailandCount = 0;
+        
         earthquakes.forEach((eq, index) => {
-            let color, size;
-            if (eq.magnitude >= 4.0) {
-                color = '#e74c3c'; size = 20;
-            } else if (eq.magnitude >= 3.0) {
-                color = '#f39c12'; size = 15;
-            } else {
-                color = '#27ae60'; size = 10;
-            }
+            const distance = calculateDistance(bangkok[0], bangkok[1], eq.lat, eq.lng);
+            eq.distance = distance;
+            
+            if (distance < closestDistance) closestDistance = distance;
+            if (distance > farthestDistance) farthestDistance = distance;
+            if (eq.location.includes('ประเทศไทย')) thailandCount++;
             
             const earthquakeIcon = L.divIcon({
-                html: `<div style="background: ${color}; color: white; border-radius: 50%; width: ${size}px; height: ${size}px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3); animation: pulse 2s infinite;">${eq.magnitude}</div>`,
-                iconSize: [size, size],
-                className: 'earthquake-marker'
+                className: 'earthquake-marker',
+                html: `<div style="
+                    width: ${getMarkerSize(eq.magnitude)}px; 
+                    height: ${getMarkerSize(eq.magnitude)}px; 
+                    background: ${getEarthquakeColor(eq.magnitude)};
+                    border: 2px solid #fff;
+                    border-radius: 50%;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-weight: bold;
+                    font-size: ${Math.max(8, eq.magnitude * 2)}px;
+                ">${eq.magnitude}</div>`,
+                iconSize: [getMarkerSize(eq.magnitude), getMarkerSize(eq.magnitude)],
+                iconAnchor: [getMarkerSize(eq.magnitude)/2, getMarkerSize(eq.magnitude)/2]
             });
             
-            const marker = L.marker([eq.lat, eq.lng], {icon: earthquakeIcon}).addTo(map);
+            L.marker([eq.lat, eq.lng], {icon: earthquakeIcon})
+                .addTo(map)
+                .bindPopup(`
+                    <div class="popup-content">
+                        <div class="popup-title">🌍 แผ่นดินไหว #${index + 1}</div>
+                        <div class="popup-info">📍 พิกัด: ${eq.lat.toFixed(4)}, ${eq.lng.toFixed(4)}</div>
+                        <div class="popup-info">📏 ขนาด: ${eq.magnitude} แมกนิจูด</div>
+                        <div class="popup-info">📐 ความลึก: ${eq.depth} กม.</div>
+                        <div class="popup-info">🌏 สถานที่: ${eq.location}</div>
+                        <div class="popup-info">🕐 เวลา: ${eq.time}</div>
+                        <div class="popup-distance">
+                            ห่างจากกรุงเทพฯ: ${distance.toFixed(1)} กม.
+                        </div>
+                    </div>
+                `);
             
-            const popupContent = `
-                <div style="min-width: 200px;">
-                    <h3 style="margin: 0 0 10px 0; color: ${color};">🌋 แผ่นดินไหว #${index + 1}</h3>
-                    <p><strong>📍 สถานที่:</strong> ${eq.location}</p>
-                    <p><strong>📏 ขนาด:</strong> ${eq.magnitude} แมกนิจูด</p>
-                    <p><strong>📐 ความลึก:</strong> ${eq.depth} กม.</p>
-                    <p><strong>🕐 เวลา:</strong> ${eq.time}</p>
-                    <p><strong>📏 ระยะห่างจากกรุงเทพ:</strong> <span style="color: #2980b9; font-weight: bold;">${eq.distance.toFixed(0)} กม.</span></p>
-                </div>
-            `;
-            marker.bindPopup(popupContent);
-            
-            // เชื่อมเส้นไปยังกรุงเทพ
-            const line = L.polyline([[eq.lat, eq.lng], [bangkokLat, bangkokLng]], {
-                color: color,
-                weight: 2,
+            // เพิ่มเส้นเชื่อมระหว่างกรุงเทพกับจุดแผ่นดินไหว
+            L.polyline([bangkok, [eq.lat, eq.lng]], {
+                color: eq.magnitude >= 4.0 ? '#ff6b6b' : 
+                       eq.magnitude >= 3.0 ? '#feca57' : 
+                       eq.magnitude >= 2.0 ? '#48dbfb' : '#1dd1a1',
+                weight: Math.max(1, eq.magnitude / 2),
                 opacity: 0.6,
                 dashArray: '5, 10'
             }).addTo(map);
-            
-            line.bindTooltip(`ระยะห่าง: ${eq.distance.toFixed(0)} กม.`, {
+        });
+        
+        // อัพเดตสถิติ
+        document.getElementById('thailand-earthquakes').textContent = thailandCount;
+        document.getElementById('closest-distance').textContent = `${closestDistance.toFixed(1)} กม.`;
+        document.getElementById('farthest-distance').textContent = `${farthestDistance.toFixed(1)} กม.`;
+        
+        // เพิ่มวงกลมแสดงระยะทาง
+        const distanceCircles = [100, 300, 500, 1000];
+        distanceCircles.forEach(radius => {
+            L.circle(bangkok, {
+                color: '#3498db',
+                fillColor: 'transparent',
+                fillOpacity: 0,
+                radius: radius * 1000,
+                weight: 1,
+                opacity: 0.3,
+                dashArray: '10, 10'
+            }).addTo(map).bindTooltip(`${radius} กม. จากกรุงเทพฯ`, {
                 permanent: false,
                 direction: 'center'
             });
         });
         
-        // คำนวณสถิติ
-        const distances = earthquakes.map(eq => eq.distance);
-        const magnitudes = earthquakes.map(eq => eq.magnitude);
-        
-        const avgDistance = distances.reduce((a, b) => a + b, 0) / distances.length;
-        const maxMagnitude = Math.max(...magnitudes);
-        const nearestDistance = Math.min(...distances);
-        
-        document.getElementById('avgDistance').textContent = avgDistance.toFixed(0);
-        document.getElementById('maxMagnitude').textContent = maxMagnitude.toFixed(1);
-        document.getElementById('nearestDistance').textContent = nearestDistance.toFixed(0);
-        document.getElementById('updateTime').textContent = new Date().toLocaleString('th-TH');
-        
-        // สร้างรายการแผ่นดินไหว
-        const earthquakeList = document.getElementById('earthquakeList');
-        earthquakes.forEach((eq, index) => {
-            const item = document.createElement('div');
-            let magnitudeClass = 'magnitude-low';
-            if (eq.magnitude >= 4.0) magnitudeClass = 'magnitude-high';
-            else if (eq.magnitude >= 3.0) magnitudeClass = 'magnitude-medium';
-            
-            item.className = `earthquake-item ${magnitudeClass}`;
-            item.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                    <div>
-                        <div class="magnitude-info" style="color: ${eq.magnitude >= 4.0 ? '#e74c3c' : eq.magnitude >= 3.0 ? '#f39c12' : '#27ae60'};">
-                            🌋 #${index + 1} - ${eq.magnitude} แมกนิจูด
-                        </div>
-                        <div class="location-info">📍 ${eq.location}</div>
-                        <div class="time-info">🕐 ${eq.time}</div>
-                    </div>
-                    <div class="distance-info">
-                        📏 ${eq.distance.toFixed(0)} กม. จากกรุงเทพ
-                    </div>
-                </div>
-            `;
-            earthquakeList.appendChild(item);
-        });
-        
-        // เพิ่ม CSS animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes pulse {
-                0% { transform: scale(1); opacity: 1; }
-                50% { transform: scale(1.1); opacity: 0.8; }
-                100% { transform: scale(1); opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
+        // ปรับแผนที่ให้แสดงทุกจุด
+        const group = new L.featureGroup(earthquakes.map(eq => L.marker([eq.lat, eq.lng])));
+        group.addLayer(L.marker(bangkok));
+        map.fitBounds(group.getBounds().pad(0.1));
     </script>
 </body>
 </html>
